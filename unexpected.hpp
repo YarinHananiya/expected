@@ -1,6 +1,6 @@
 /*******************************************************************************
  * helper class for expected, to distinguish between Expected and Exception
- * when it is the same type.
+ * when thet are the same type.
  * Author: Yarin Hananiya
  * ****************************************************************************/
 #ifndef UNEXPECTED_HPP
@@ -21,10 +21,10 @@ public:
     template<typename OtherException>
     unexpected(unexpected<OtherException>&& other);
 
-    auto get() & -> Exception&;
-    auto get() const& -> const Exception&;
-    auto get() && -> Exception&&;
-    auto get() const&& -> const Exception&&;
+    auto get() & noexcept -> Exception&;
+    auto get() const& noexcept -> const Exception&;
+    auto get() && noexcept -> Exception&&;
+    auto get() const&& noexcept -> const Exception&&;
 
 private:
     Exception m_e;
