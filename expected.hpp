@@ -52,10 +52,10 @@ public:
     auto value() const && -> const T&&;
 
     // undefined behavior if has_value == true
-    auto error() & noexcept -> E&;
-    auto error() const & noexcept -> const E&;
-    auto error() && noexcept -> E&&;
-    auto error() const && noexcept -> const E&&;
+    auto error() & -> E&;
+    auto error() const & -> const E&;
+    auto error() && -> E&&;
+    auto error() const && -> const E&&;
 
 private:
     std::variant<T, unexpected<E>> m_value_or_error;
@@ -151,24 +151,24 @@ auto expected<T, E>::value() const&& -> const T&& {
 }
 
 template<typename T, typename E>
-auto expected<T, E>::error() & noexcept -> E& {
+auto expected<T, E>::error() & -> E& {
     assert(!has_value());
     return std::get<unexpected<E>>(m_value_or_error).get();
 }
 
 template<typename T, typename E>
-auto expected<T, E>::error() const & noexcept -> const E& {
+auto expected<T, E>::error() const & -> const E& {
     return (const_cast<expected&>(*this)).error();
 }
 
 template<typename T, typename E>
-auto expected<T, E>::error() && noexcept -> E&& {
+auto expected<T, E>::error() && -> E&& {
     assert(!has_value());
     return std::get<unexpected<E>>(std::move(m_value_or_error)).get();
 }
 
 template<typename T, typename E>
-auto expected<T, E>::error() const && noexcept -> const E&& {
+auto expected<T, E>::error() const && -> const E&& {
     return (const_cast<expected&&>(*this)).error();
 }
 

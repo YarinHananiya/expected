@@ -22,9 +22,9 @@ public:
     unexpected(unexpected<OtherException>&& other);
 
     auto get() & noexcept -> Exception&;
-    auto get() const& noexcept -> const Exception&;
+    auto get() const & noexcept -> const Exception&;
     auto get() && noexcept -> Exception&&;
-    auto get() const&& noexcept -> const Exception&&;
+    auto get() const && noexcept -> const Exception&&;
 
 private:
     Exception m_e;
@@ -50,22 +50,22 @@ unexpected<Exception>::unexpected(unexpected<OtherException>&& other)
 }
 
 template<typename Exception>
-auto unexpected<Exception>::get() & -> Exception& {
+    auto unexpected<Exception>::get() & noexcept -> Exception& {
     return m_e;
 }
 
 template<typename Exception>
-auto unexpected<Exception>::get() const& -> const Exception& {
+    auto unexpected<Exception>::get() const & noexcept -> const Exception& {
     return (const_cast<unexpected&>(*this)).get();
 }
 
 template<typename Exception>
-auto unexpected<Exception>::get() && -> Exception&& {
+    auto unexpected<Exception>::get() && noexcept -> Exception&& {
     return std::move(m_e);
 }
 
 template<typename Exception>
-auto unexpected<Exception>::get() const&& -> const Exception&& {
+    auto unexpected<Exception>::get() const && noexcept -> const Exception&& {
     return (const_cast<unexpected&&>(*this)).get();
 }
 

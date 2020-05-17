@@ -1,5 +1,6 @@
 #include <cstring>  // strcmp
 #include <iostream> // std::cout
+#include <memory>   // std::unique_ptr
 #include <string>   // std::string
 #include <vector>   // std::vector
 
@@ -13,6 +14,11 @@ auto TestOperatorBool() -> void;
 auto TestValue() -> void;
 auto TestError() -> void;
 auto TestSwap() -> void;
+auto TestReturnExpected() -> void;
+auto TestReturnExpectedType() -> expected<int, std::string>;
+auto TestReturnUnexpectedType() -> expected<int, std::string>;
+auto TestReturnExpectedOrUnexpected(std::unique_ptr<std::string> ptr)
+    -> expected<std::string, std::string>;
 
 int main() {
     TestCtors();
@@ -21,6 +27,7 @@ int main() {
     TestValue();
     TestError();
     TestSwap();
+    TestReturnExpected();
     return 0;
 }
 
@@ -151,7 +158,7 @@ auto TestError() -> void {
 
     std::string s("?");
     RUN_TEST((expected<int, std::string>(unexpected<std::string>("no")).error()) == "no");
-    expected<int, std::string>(unexpected<std::string>("no")).error() = s; // should not compile
+    // expected<int, std::string>(unexpected<std::string>("no")).error() = s; // should not compile
 
     const expected<int, std::string> e3(unexpected<std::string>("big no"));
     RUN_TEST(std::move(e3).error() == "big no");
@@ -167,4 +174,35 @@ auto TestSwap() -> void {
     e1.swap(e2);
     RUN_TEST(e1.has_value());
     RUN_TEST(!e2.has_value());
+}
+
+auto TestReturnExpected() -> void {
+    TestReturnExpectedType(); // should be a warning - attribute nodiscard
+    auto expected_val = TestReturnExpectedType();
+    RUN_TEST(expected_val.has_value());
+    auto unexpected_val = TestReturnUnexpectedType();
+    RUN_TEST(!unexpected_val.has_value());
+    auto expected_val2 =
+        TestReturnExpectedOrUnexpected(std::make_unique<std::string>("hello"));
+    RUN_TEST(expected_val2.has_value());
+    auto unexpected_val2 = TestReturnExpectedOrUnexpected(nullptr);
+    RUN_TEST(!unexpected_val2.has_value());
+}
+
+auto TestReturnExpectedType() -> expected<int, std::string> {
+    return expected<int, std::string>(5);
+}
+
+auto TestReturnUnexpectedType() -> expected<int, std::string> {
+    return expected<int, std::string>(unexpected<std::string>("wrong"));
+}
+
+auto TestReturnExpectedOrUnexpected(std::unique_ptr<std::string> ptr)
+    -> expected<std::string, std::string> {
+    if (nullptr == ptr) {
+        return expected<std::string, std::string>(
+            unexpected<std::string>("unexpected"));
+    }
+
+    return expected<std::string, std::string>("expected");
 }
