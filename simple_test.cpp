@@ -19,6 +19,7 @@ auto TestReturnExpectedType() -> expected<int, std::string>;
 auto TestReturnUnexpectedType() -> expected<int, std::string>;
 auto TestReturnExpectedOrUnexpected(std::unique_ptr<std::string> ptr)
     -> expected<std::string, std::string>;
+auto TestRefAndPointerException() -> void;
 
 int main() {
     TestCtors();
@@ -28,6 +29,7 @@ int main() {
     TestError();
     TestSwap();
     TestReturnExpected();
+
     return 0;
 }
 
@@ -152,8 +154,8 @@ auto TestError() -> void {
     e1.error() = std::runtime_error("very bad");
     RUN_TEST(0 == strcmp(e1.error().what(), "very bad"));
 
-    const expected<int, std::exception> e2 = e1;
-    RUN_TEST(0 == strcmp(e2.error().what(), "std::exception"));
+    const expected<int, std::runtime_error> e2 = e1;
+    RUN_TEST(0 == strcmp(e2.error().what(), "very bad"));
     // e2.error() = std::runtime_error("very very bad"); // should not compile
 
     std::string s("?");
@@ -205,4 +207,13 @@ auto TestReturnExpectedOrUnexpected(std::unique_ptr<std::string> ptr)
     }
 
     return expected<std::string, std::string>("expected");
+}
+
+auto TestRefAndPointerException() -> void {
+    std::runtime_error err("error");
+    expected<int, std::exception&> e(err);
+    RUN_TEST(0 == strcmp(e.error().what(), "error"));
+    std::logic_error err2("error2");
+    expected<int, std::exception*> e2(&err2);
+    RUN_TEST(0 == strcmp(e2.error()->what(), "error2"));
 }

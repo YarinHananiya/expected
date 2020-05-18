@@ -15,9 +15,6 @@
 
 // clang-format off
 
-template<typename T, typename... Args>
-struct First { using type = T; };
-
 template<typename T, typename E>
 class [[nodiscard]] expected {
 public:
@@ -36,14 +33,9 @@ public:
     expected& operator=(expected&&) = default;
     ~expected() = default;
 
-    template<typename U>
-    expected(const expected<T, U>& other);
-    template<typename U>
-    expected(expected<T, U>&& other);
-
     auto has_value() const noexcept -> bool;
     explicit operator bool() const noexcept;
-    auto swap(expected & other) noexcept -> void;
+    auto swap(expected& other) noexcept -> void;
 
     // these functions throw E if has_value == false
     auto value() & -> T&;
@@ -59,9 +51,6 @@ public:
 
 private:
     std::variant<T, unexpected<E>> m_value_or_error;
-
-    template<typename T_, typename U>
-    friend class expected;
 };
 
 template<typename T, typename E>
@@ -90,27 +79,6 @@ template<typename... Args, typename>
 expected<T, E>::expected(Args&&... args)
   : m_value_or_error(std::in_place_type_t<T>(), std::forward<Args>(args)...) {
 }
-
-template<typename T, typename E>
-template<typename U>
-expected<T, E>::expected(const expected<T, U>& other) {
-    if (other.has_value()) {
-        std::get<T>(m_value_or_error) = std::get<T>(other.m_value_or_error);
-    } else {
-        m_value_or_error = std::get<unexpected<U>>(other.m_value_or_error);
-    }
-}
-
-template<typename T, typename E>
-template<typename U>
-expected<T, E>::expected(expected<T, U>&& other) {
-    if (other.has_value()) {
-        std::get<T>(m_value_or_error) = std::get<T>(std::move(other.m_value_or_error));
-    } else {
-        m_value_or_error = std::get<unexpected<U>>(std::move(other.m_value_or_error));
-    }
-}
-
 
 template<typename T, typename E>
 auto expected<T, E>::has_value() const noexcept -> bool {
