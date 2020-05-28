@@ -1,6 +1,6 @@
 /*******************************************************************************
  * helper class for expected, to distinguish between Expected and Exception
- * when thet are the same type.
+ * when they are the same type.
  * Author: Yarin Hananiya
  * ****************************************************************************/
 #ifndef UNEXPECTED_HPP
